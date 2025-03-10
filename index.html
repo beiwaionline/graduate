@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北京外国语大学网络教育学院 - 学生档案</title>
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        body {
+            background-color: #ffffff;
+            color: #333333;
+            line-height: 1.6;
+        }
+        /* 加载动画 */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #loading-message {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #555555;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 51, 102, 0.1);
+            border-radius: 50%;
+            border-top-color: #003366;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* 头部样式 */
+        header {
+            background: #003366;
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        /* 背景几何装饰 */
+        .header-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        .geometric-shape {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        /* 创建25个随机几何形状 */
+        .geometric-shape:nth-child(1) {
+            width: 50px;
+            height: 50px;
+            top: 10%;
+            left: 5%;
+            transform: rotate(15deg);
+        }
+        .geometric-shape:nth-child(2) {
+            width: 30px;
+            height: 30px;
+            top: 20%;
+            left: 15%;
+            transform: rotate(45deg);
+        }
+        .geometric-shape:nth-child(3) {
+            width: 70px;
+            height: 40px;
+            top: 60%;
+            left: 10%;
+        }
+        .geometric-shape:nth-child(4) {
+            width: 35px;
+            height: 35px;
+            top: 40%;
+            left: 25%;
+            transform: rotate(30deg);
+        }
+        .geometric-shape:nth-child(5) {
+            width: 60px;
+            height: 20px;
+            top: 70%;
+            left: 30%;
+            transform: rotate(70deg);
+        }
+        .geometric-shape:nth-child(6) {
+            width: 45px;
+            height: 45px;
+            top: 15%;
+            left: 40%;
+            transform: rotate(10deg);
+        }
+        .geometric-shape:nth-child(7) {
+            width: 50px;
+            height: 30px;
+            top: 55%;
+            left: 45%;
+            transform: rotate(55deg);
+        }
+        .geometric-shape:nth-child(8) {
+            width: 25px;
+            height: 25px;
+            top: 30%;
+            left: 55%;
+        }
+        .geometric-shape:nth-child(9) {
+            width: 65px;
+            height: 25px;
+            top: 75%;
+            left: 60%;
+            transform: rotate(25deg);
+        }
+        .geometric-shape:nth-child(10) {
+            width: 40px;
+            height: 40px;
+            top: 20%;
+            left: 70%;
+            transform: rotate(40deg);
+        }
+        .geometric-shape:nth-child(11) {
+            width: 55px;
+            height: 20px;
+            top: 65%;
+            left: 75%;
+        }
+        .geometric-shape:nth-child(12) {
+            width: 30px;
+            height: 30px;
+            top: 45%;
+            left: 85%;
+            transform: rotate(60deg);
+        }
+        .geometric-shape:nth-child(13) {
+            width: 70px;
+            height: 30px;
+            top: 10%;
+            left: 90%;
+            transform: rotate(35deg);
+        }
+        .geometric-shape:nth-child(14) {
+            width: 50px;
+            height: 50px;
+            top: 50%;
+            right: 5%;
+            transform: rotate(20deg);
+        }
+        .geometric-shape:nth-child(15) {
+            width: 35px;
+            height: 35px;
+            top: 80%;
+            right: 15%;
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 2;
+        }
+        .logo {
+            height: 80px;
+            margin-right: 25px;
+        }
+        .header-titles {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* 将对齐方式改为居中 */
+            width: auto;
+        }
+        .main-title {
+            font-family: 'SimSun', serif; /* 宋体 */
+            font-size: 38px;
+            font-weight: bold;
+            margin: 0;
+            letter-spacing: 2px;
+            text-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            text-align: center;
+        }
+        .english-title {
+            font-size: 14px; /* 缩小英文点缀字体 */
+            margin-top: 2px;
+            font-weight: normal;
+            letter-spacing: 1px;
+            opacity: 0.9;
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            text-align: center;
+        }
+        .subtitle {
+            font-size: 16px;
+            margin-top: 10px;
+            font-weight: normal;
+            opacity: 0.85;
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            text-align: center;
+        }
+        /* 主内容区 */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        /* 导航菜单 */
+        .nav-tabs {
+            display: flex;
+            border-bottom: 2px solid #003366;
+            margin-bottom: 20px;
+        }
+        .nav-tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            background-color: #f0f5fb;
+            border: 1px solid #d9e2ec;
+            border-bottom: none;
+            margin-right: 3px;
+            border-radius: 6px 6px 0 0;
+            font-weight: 500;
+            color: #333333;
+            transition: all 0.2s ease;
+        }
+        .nav-tab.active {
+            background-color: #003366;
+            color: white;
+            font-weight: bold;
+        }
+        .nav-tab:hover:not(.active) {
+            background-color: #e0ebf5;
+        }
+        /* 内容区块 */
+        .content-section {
+            display: none;
+            background-color: white;
+            border-radius: 6px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            border: 1px solid #e6e6e6;
+        }
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .section-title {
+            font-size: 22px;
+            color: #003366;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e6e6e6;
+            position: relative;
+        }
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 80px;
+            height: 2px;
+            background-color: #003366;
+        }
+        /* 学生信息样式 */
+        .student-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .info-item {
+            margin-bottom: 18px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #003366;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 15px;
+        }
+        .info-value {
+            padding: 12px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border-left: 3px solid #003366;
+        }
+        .status-graduated {
+            display: inline-block;
+            background-color: #e8f4fd;
+            color: #0066cc;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 5px;
+            border: 1px solid #b8d8f8;
+        }
+        /* 表格样式 */
+        .table-container {
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: 1px solid #e6e6e6;
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+        }
+        th {
+            background-color: #003366;
+            color: white;
+            text-align: left;
+            padding: 12px;
+            font-weight: 500;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e6e6e6;
+            vertical-align: middle;
+        }
+        tr:nth-child(even) {
+            background-color: #f5f9fd;
+        }
+        tr:hover {
+            background-color: #edf5fb;
+        }
+        /* 课程表样式 */
+        .semester-title {
+            font-size: 18px;
+            color: #003366;
+            margin: 30px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e6e6e6;
+        }
+        .semester-title:first-of-type {
+            margin-top: 0;
+        }
+        /* 分数样式 */
+        .score-high {
+            color: #008800;
+            font-weight: bold;
+        }
+        .score-medium {
+            color: #cc7700;
+            font-weight: bold;
+        }
+        .score-low {
+            color: #dd0000;
+            font-weight: bold;
+        }
+        /* 毕业论文样式 */
+        .thesis-info {
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            padding: 25px;
+            border: 1px solid #e6e6e6;
+        }
+        .thesis-result {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 15px;
+            background-color: #e8f4e8;
+            color: #008800;
+            border-radius: 4px;
+            font-weight: bold;
+            border: 1px solid #c8e6c8;
+        }
+        .note {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            border-left: 3px solid #ccc;
+        }
+        .evaluation {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border: 1px dashed #ddd;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+        /* 响应式设计 - 移动优化 */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                padding: 10px;
+            }
+            .logo {
+                height: 60px;
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+            .main-title {
+                font-size: 26px;
+            }
+            .english-title {
+                font-size: 12px;
+            }
+            .subtitle {
+                font-size: 14px;
+                margin-top: 8px;
+            }
+            .container {
+                padding: 0 15px;
+                margin: 15px auto;
+            }
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+            .nav-tab {
+                flex: 1 0 calc(50% - 5px);
+                text-align: center;
+                font-size: 14px;
+                padding: 10px 5px;
+                margin-bottom: 2px;
+            }
+            .content-section {
+                padding: 15px;
+            }
+            .section-title {
+                font-size: 18px;
+                margin-bottom: 20px;
+            }
+            .student-info {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载动画 -->
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <div id="loading-message">查询中，请稍候...</div>
+    </div>
+    <!-- 页面头部 -->
+    <header>
+        <!-- 背景几何装饰 -->
+        <div class="header-bg">
+            <div class="geometric-shape"></div>
+            <div class="geometric-shape"></div>
+            <div class="geometric-shape"></div>
+            <div class="geometric-shape"></div>
+            <div class="geometric-shape"></div>
+            <div class="geometric-shape"></div>
+            <div class="geometric-shape"></div>
+            <div class="geometric-shape"></div>
+            <div class="geometric-shape"></div>
+            <div class="geometric-shape"></div>
+            <div class="geometric-shape"></div>
+            <div class="geometric-shape"></div>
+            <div class="geometric-shape"></div>
+            <div class="geometric-shape"></div>
+            <div class="geometric-shape"></div>
+        </div>
+        <div class="header-container">
+            <img src="https://upload.wikimedia.org/wikipedia/tr/e/e0/Beijing_Foreign_Studies_University.png" alt="北京外国语大学logo" class="logo">
+            <div class="header-titles">
+                <h1 class="main-title">北京外国语大学</h1>
+                <div class="english-title">Beijing Foreign Studies University</div>
+                <h2 class="subtitle">网络教育学院学生信息查询系统</h2>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <!-- 导航标签 -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-target="student-info-section">学生信息</div>
+            <div class="nav-tab" data-target="course-section">课程表</div>
+            <div class="nav-tab" data-target="score-section">专业得分</div>
+            <div class="nav-tab" data-target="thesis-section">毕业论文</div>
+        </div>
+        <!-- 学生信息部分 -->
+        <div id="student-info-section" class="content-section active">
+            <h3 class="section-title">学生信息与学籍状态</h3>
+            <div class="student-info">
+                <div class="info-item">
+                    <span class="info-label">学生姓名</span>
+                    <div class="info-value">陈秋杭</div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">身份证号</span>
+                    <div class="info-value">410102198810170177</div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">出生日期</span>
+                    <div class="info-value">1988年10月17日</div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">性别</span>
+                    <div class="info-value">男</div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">民族</span>
+                    <div class="info-value">汉</div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">学院与专业</span>
+                    <div class="info-value">网络教育学院-商务英语（专升本）</div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">学籍状态</span>
+                    <div class="info-value">
+                        <span class="status-graduated">本科毕业</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">入学时间</span>
+                    <div class="info-value">2022年5月16日</div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">毕业时间</span>
+                    <div class="info-value">2025年2月24日</div>
+                </div>
+            </div>
+        </div>
+        <!-- 课程表部分 -->
+        <div id="course-section" class="content-section">
+            <h3 class="section-title">课程学习记录</h3>
+            <h4 class="semester-title">2022年学期</h4>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="15%">学期</th>
+                            <th width="35%">课程名称</th>
+                            <th width="15%">课程类型</th>
+                            <th width="15%">学分</th>
+                            <th width="20%">成绩</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2022</td>
+                            <td>计算机应用基础</td>
+                            <td>必修</td>
+                            <td>8</td>
+                            <td class="score-high">100</td>
+                        </tr>
+                        <tr>
+                            <td>2022</td>
+                            <td>网络教育导论</td>
+                            <td>必修</td>
+                            <td>6</td>
+                            <td class="score-high">100</td>
+                        </tr>
+                        <tr>
+                            <td>2022</td>
+                            <td>商务英语阅读（一）</td>
+                            <td>必修</td>
+                            <td>8</td>
+                            <td class="score-high">90</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <h4 class="semester-title">2023年春季学期</h4>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="15%">学期</th>
+                            <th width="35%">课程名称</th>
+                            <th width="15%">课程类型</th>
+                            <th width="15%">学分</th>
+                            <th width="20%">成绩</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2023春</td>
+                            <td>商务英语写作（一）</td>
+                            <td>必修</td>
+                            <td>8</td>
+                            <td class="score-high">95</td>
+                        </tr>
+                        <tr>
+                            <td>2023春</td>
+                            <td>国际商务</td>
+                            <td>必修</td>
+                            <td>8</td>
+                            <td class="score-high">92</td>
+                        </tr>
+                        <tr>
+                            <td>2023春</td>
+                            <td>经济学原理</td>
+                            <td>必修</td>
+                            <td>7</td>
+                            <td class="score-high">90</td>
+                        </tr>
+                        <tr>
+                            <td>2023春</td>
+                            <td>跨文化交际</td>
+                            <td>选修</td>
+                            <td>4</td>
+                            <td class="score-medium">75</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <h4 class="semester-title">2023年秋季学期</h4>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="15%">学期</th>
+                            <th width="35%">课程名称</th>
+                            <th width="15%">课程类型</th>
+                            <th width="15%">学分</th>
+                            <th width="20%">成绩</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2023秋</td>
+                            <td>商务英语口语（一）</td>
+                            <td>必修</td>
+                            <td>8</td>
+                            <td class="score-high">100</td>
+                        </tr>
+                        <tr>
+                            <td>2023秋</td>
+                            <td>商务英语翻译（一）</td>
+                            <td>必修</td>
+                            <td>8</td>
+                            <td class="score-high">90</td>
+                        </tr>
+                        <tr>
+                            <td>2023秋</td>
+                            <td>国际贸易实务</td>
+                            <td>选修</td>
+                            <td>5</td>
+                            <td class="score-medium">78</td>
+                        </tr>
+                        <tr>
+                            <td>2023秋</td>
+                            <td>市场营销</td>
+                            <td>选修</td>
+                            <td>4</td>
+                            <td class="score-medium">72</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <h4 class="semester-title">2024年春季学期</h4>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="15%">学期</th>
+                            <th width="35%">课程名称</th>
+                            <th width="15%">课程类型</th>
+                            <th width="15%">学分</th>
+                            <th width="20%">成绩</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2024春</td>
+                            <td>商务英语阅读（二）</td>
+                            <td>必修</td>
+                            <td>8</td>
+                            <td class="score-high">95</td>
+                        </tr>
+                        <tr>
+                            <td>2024春</td>
+                            <td>商务英语写作（二）</td>
+                            <td>必修</td>
+                            <td>8</td>
+                            <td class="score-high">92</td>
+                        </tr>
+                        <tr>
+                            <td>2024春</td>
+                            <td>商务英语口语（二）</td>
+                            <td>必修</td>
+                            <td>8</td>
+                            <td class="score-high">90</td>
+                        </tr>
+                        <tr>
+                            <td>2024春</td>
+                            <td>财务管理</td>
+                            <td>选修</td>
+                            <td>4</td>
+                            <td class="score-medium">70</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <h4 class="semester-title">2024年秋季学期</h4>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="15%">学期</th>
+                            <th width="35%">课程名称</th>
+                            <th width="15%">课程类型</th>
+                            <th width="15%">学分</th>
+                            <th width="20%">成绩</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2024秋</td>
+                            <td>商务英语翻译（二）</td>
+                            <td>必修</td>
+                            <td>8</td>
+                            <td class="score-high">95</td>
+                        </tr>
+                        <tr>
+                            <td>2024秋</td>
+                            <td>商务英语阅读（三）</td>
+                            <td>必修</td>
+                            <td>8</td>
+                            <td class="score-high">94</td>
+                        </tr>
+                        <tr>
+                            <td>2024秋</td>
+                            <td>国际市场分析</td>
+                            <td>选修</td>
+                            <td>8</td>
+                            <td class="score-high">80</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- 专业得分表部分 -->
+        <div id="score-section" class="content-section">
+            <h3 class="section-title">商务英语（专升本）总分</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="60%">评分项目</th>
+                            <th width="20%">总分</th>
+                            <th width="20%">得分</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>专业总分</td>
+                            <td>110</td>
+                            <td class="score-high">97</td>
+                        </tr>
+                        <tr>
+                            <td>必修课总分</td>
+                            <td>85</td>
+                            <td class="score-high">85</td>
+                        </tr>
+                        <tr>
+                            <td>选修课总分</td>
+                            <td>25</td>
+                            <td class="score-medium">12</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="note">
+                <p><strong>毕业标准说明：</strong>北京外国语大学网络教育学院商务英语（专升本）专业要求学生专业总分达到95分以上，必修课总分70分以上，并完成规定学分及毕业论文方可达到本专业毕业标准。学生需在规定学习年限内完成所有课程学习，各科成绩合格，修满全部学分。不符合以上毕业要求者，可申请结业证书。</p>
+            </div>
+        </div>
+        <!-- 毕业论文部分 -->
+        <div id="thesis-section" class="content-section">
+            <h3 class="section-title">毕业论文</h3>
+            <div class="thesis-info">
+                <div class="info-item">
+                    <span class="info-label">论文题目</span>
+                    <div class="info-value">商务英语在国际贸易中的应用研究</div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">递交时间</span>
+                    <div class="info-value">2024年12月20日</div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">指导老师</span>
+                    <div class="info-value">刘沛鑫</div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">评审结果</span>
+                    <div class="info-value">
+                        <span class="thesis-result">通过</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">导师评语</span>
+                    <div class="evaluation">
+                        论文思路清晰，研究深入，层次分明，逻辑结构合理。观点表达准确，研究原理采用恰当。能够有效地将商务英语专业与国际商务主题结合起来进行论证。个别观点论证不够明确，但总体上达到了本学院本科毕业论文的要求。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // 加载动画逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            const loadingMessage = document.getElementById('loading-message');
+            // 第一阶段：查询中，请稍候(3秒)
+            setTimeout(function() {
+                loadingMessage.textContent = '正在查询毕业生学籍信息...';
+                // 第二阶段：正在查询毕业生学籍信息(3秒)
+                setTimeout(function() {
+                    // 隐藏加载屏幕
+                    loadingScreen.style.opacity = '0';
+                    loadingScreen.style.transition = 'opacity 0.5s ease';
+                    setTimeout(function() {
+                        loadingScreen.style.display = 'none';
+                    }, 500);
+                }, 3000);
+            }, 3000);
+        });
+        // 标签切换逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.nav-tab');
+            const sections = document.querySelectorAll('.content-section');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有活动标签和内容的active类
+                    tabs.forEach(t => t.classList.remove('active'));
+                    sections.forEach(s => s.classList.remove('active'));
+                    // 添加当前标签的active类
+                    this.classList.add('active');
+                    // 显示对应的内容
+                    const targetId = this.getAttribute('data-target');
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
